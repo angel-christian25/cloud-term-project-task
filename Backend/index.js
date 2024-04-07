@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Construct the path to the frontend build directory
-const frontendBuildPath = path.resolve(__dirname, '..', 'Frontend', 'build');
+const frontendBuildPath = path.resolve(__dirname, '..', 'Frontend', 'cloud-proj', 'build');
 
 // Serve frontend build files
 app.use(express.static(frontendBuildPath));

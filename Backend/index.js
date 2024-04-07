@@ -31,7 +31,8 @@ app.use(express.static(frontendBuildPath));
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
+  region: 'us-east-1',
+  sessionToken: process.env.AWS_SESSION_TOKEN,
 });
 
 
@@ -54,8 +55,40 @@ const getSecretValue = async (secretName) => {
   }
 };
 
+// Function to create required tables if they don't exist
+const createTablesIfNotExist = async (pool) => {
+  try {
+    // Check if the 'users' table exists, create if not
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL
+      )
+    `);
+
+    // Check if the 'todos' table exists, create if not
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        deadline TIMESTAMP,
+        is_open BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_by INT,
+        FOREIGN KEY (created_by) REFERENCES users(id)
+      )
+    `);
+  } catch (error) {
+    console.error('Error creating tables:', error);
+    throw error;
+  }
+}
+
+
 // Database connection string secret name
-const dbSecretName = 'connectionStringForPG'; // Replace with your PostgreSQL secret name
+const dbSecretName = 'connectionStringForPG2'; // Replace with your PostgreSQL secret name
 
 
 
@@ -65,7 +98,7 @@ const createPool = async () => {
     const dbSecretString = await getSecretValue(dbSecretName);
     const dbSecret = JSON.parse(dbSecretString);
     const pool = new Pool({
-      connectionString: dbSecret.connectionStringForPG,
+      connectionString: dbSecret.connectionStringForPG2,
       // connectionString: `postgres://postgres:postgres@localhost:5432/todos`,
       ssl: {
         rejectUnauthorized: false

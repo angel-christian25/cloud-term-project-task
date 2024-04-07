@@ -1,0 +1,127 @@
+const nodemailer = require('nodemailer');
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  user: 'postgres',
+  host: 'todos.cnk20wgo4yeb.us-east-1.rds.amazonaws.com',
+  database: 'todos',
+  password: 'postgres',
+  port: 5432, // Your PostgreSQL port
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+exports.handler = async (event) => {
+  try {
+    console.log('Starting Lambda execution...');
+
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(23);
+    tomorrow.setMinutes(39);
+
+    const todayString = today.toISOString().slice(0, 10);
+    const tomorrowString = tomorrow.toISOString().slice(0, 10);
+
+    console.log('Today:', todayString);
+    console.log('Tomorrow:', tomorrowString);
+
+    // Query for tasks with deadline today, tasks closed today, and tasks with deadline tomorrow
+    const [todayTasks, closedTodayTasks, tomorrowTasks] = await Promise.all([
+      getTasks(todayString, true),
+      getTasks(todayString, false),
+      getTasks(tomorrowString, true),
+    ]);
+
+    console.log('Tasks with deadline today:', todayTasks);
+    console.log('Tasks closed today:', closedTodayTasks);
+    console.log('Tasks with deadline tomorrow:', tomorrowTasks);
+
+    // Construct email body
+    const emailBody = `
+      <h2>Task Reminder</h2>
+      <h3>Unclosed Tasks with Deadline Today:</h3>
+      <ul>
+        ${formatTasks(todayTasks)}
+      </ul>
+      <h3>Tasks Closed Today:</h3>
+      <ul>
+        ${formatTasks(closedTodayTasks)}
+      </ul>
+      <h3>Tasks with Deadline Tomorrow:</h3>
+      <ul>
+        ${formatTasks(tomorrowTasks)}
+      </ul>
+    `;
+
+    console.log('Email body:', emailBody);
+
+    // Send email to each user
+    await sendEmails(emailBody, todayTasks);
+
+    console.log('Emails sent successfully');
+
+    return {
+      statusCode: 200,
+      body: 'Emails sent successfully',
+    };
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      statusCode: 500,
+      body: 'Internal Server Error',
+    };
+  }
+};
+
+// Function to retrieve tasks from the database
+const getTasks = async (deadline, isOpen) => {
+  const query = {
+    text: `
+      SELECT t.title, u.email
+      FROM todos t
+      INNER JOIN users u ON t.created_by = u.id
+      WHERE t.deadline::date = $1 AND t.is_open = $2
+    `,
+    values: [deadline, isOpen],
+  };
+
+  const result = await pool.query(query);
+  return result.rows;
+};
+
+// Function to format tasks
+const formatTasks = (tasks) => {
+  let formattedTasks = '';
+  tasks.forEach((task) => {
+    formattedTasks += `<li>${task.title}</li>`;
+  });
+  return formattedTasks;
+};
+
+// Function to send email using Nodemailer
+const sendEmails = async (emailBody, tasks) => {
+  // Create a Nodemailer transporter using your Gmail credentials
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'angel.17beitg111@gmail.com',
+      pass: 'uybxgssaooxykptn' // Use your Gmail app password here
+    }
+  });
+
+  // Send email to each user
+  for (const task of tasks) {
+    const mailOptions = {
+      from: 'angel.17beitg111@gmail.com', // Sender address
+      to: task.email, // User's email address
+      subject: 'Task Reminder', // Email subject
+      html: emailBody // Email body
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+  }
+};

@@ -9,7 +9,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const AWS = require('aws-sdk');
 const moment = require('moment');
-
+require('dotenv').config();
 const app = express();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -27,7 +27,12 @@ app.use(express.static(frontendBuildPath));
 
 
 // Set the AWS region
-AWS.config.update({ region: 'us-east-1' }); // Replace 'your_region' with your desired region
+// AWS.config.update({ region: 'us-east-1' }); // Replace 'your_region' with your desired region
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
+});
 
 
 // Create an AWS Secrets Manager client

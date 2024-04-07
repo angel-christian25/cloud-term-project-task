@@ -1,8 +1,8 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+require("core-js/stable");
+require("regenerator-runtime/runtime");
 
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');

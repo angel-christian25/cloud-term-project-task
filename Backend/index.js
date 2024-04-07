@@ -1,3 +1,8 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
+import fs from 'fs';
+import path from 'path';
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -13,6 +18,12 @@ const port = 3001;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Construct the path to the frontend build directory
+const frontendBuildPath = path.resolve(__dirname, '..', 'Frontend', 'build');
+
+// Serve frontend build files
+app.use(express.static(frontendBuildPath));
 
 
 // Set the AWS region
@@ -65,7 +76,12 @@ const createPool = async () => {
   }
 };
 
-
+// Catch-all route to serve the frontend HTML file
+app.get('/*', (req, res) => {
+  // Read the HTML file and send it as response
+  const html = fs.readFileSync(path.resolve(__dirname, '../', 'Frontend','cloud-proj', 'build', 'index.html'), 'utf8');
+  res.send(html);
+});
 
 // User Signup API
 app.post('/api/signup', async (req, res) => {

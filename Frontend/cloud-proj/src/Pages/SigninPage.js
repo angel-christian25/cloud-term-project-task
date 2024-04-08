@@ -51,6 +51,7 @@ const SigninPage = () => {
   return (
     <div>
       <Container>
+      <Typography variant="h6">Task Tracker</Typography>
         <Box mt={6} display="flex" justifyContent="center">
           <Paper elevation={3} style={{ padding: 20, borderRadius: 8 }}>
             <Typography variant="h4" align="center" gutterBottom>
@@ -90,8 +91,17 @@ const SigninPage = () => {
                     Login
                   </Button>
                 </Grid>
+                
               </Grid>
             </form>
+            <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => history.push('/sigin')} 
+                  >
+                    Sign IN
+                  </Button>
           </Paper>
         </Box>
       </Container>

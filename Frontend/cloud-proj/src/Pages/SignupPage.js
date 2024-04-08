@@ -54,6 +54,7 @@ const SignupPage = () => {
   return (
     <div>
       <Container>
+      <Typography variant="h6">Task Tracker</Typography>
         <Box mt={6} display="flex" justifyContent="center">
           <Paper elevation={3} style={{ padding: 20, borderRadius: 8 }}>
             <Typography variant="h4" align="center" gutterBottom>
@@ -126,6 +127,14 @@ const SignupPage = () => {
                 </Grid>
               </Grid>
             </form>
+            <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => history.push('/signup')} 
+                  >
+                    Signup
+                  </Button>
           </Paper>
         </Box>
       </Container>

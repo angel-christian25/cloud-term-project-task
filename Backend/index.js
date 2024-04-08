@@ -131,6 +131,9 @@ app.post('/api/signup', async (req, res) => {
     const token = jwt.sign({ userId: newUser.rows[0].id, userEmail: newUser.rows[0].email }, 'your_secret_key', {
       expiresIn: '24h', // You can adjust the expiration time
     });
+    console.log(newUser.rows[0].id);
+console.log(newUser.rows[0].email);
+console.log(token);
 
     res.json({ userId: newUser.rows[0].id, email: newUser.rows[0].email, token });
   } catch (error) {

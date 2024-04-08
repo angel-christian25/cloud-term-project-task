@@ -11,7 +11,7 @@ const app = express();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const port = 3001;
-
+const cron = require('node-cron'); // Import node-cron library
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,6 +26,8 @@ AWS.config.update({
   sessionToken: process.env.AWS_SESSION_TOKEN,
 });
 
+// Create an AWS Lambda service object
+const lambda = new AWS.Lambda();
 
 // Create an AWS Secrets Manager client
 const secretsManager = new AWS.SecretsManager();
@@ -247,4 +249,23 @@ createPool().then((createdPool) => {
   console.error('Error creating pool:', error);
 });
 
+// Schedule cron job to call AWS Lambda every 2 minutes
+cron.schedule('*/5 * * * *', async () => {
+  try {
+    // Parameters for the Lambda function
+    const params = {
+      FunctionName: 'emailLambda', // Replace with your Lambda function name
+      InvocationType: 'RequestResponse', // Synchronous invocation
+      Payload: JSON.stringify({ key: 'value' }) // Payload to pass to the Lambda function
+    };
+
+    // Call the Lambda function
+    const data = await lambda.invoke(params).promise();
+    
+    // Log the response from the Lambda function
+    console.log('Response from Lambda:', data.Payload);
+  } catch (error) {
+    console.error('Error calling AWS Lambda:', error);
+  }
+});
 

@@ -116,11 +116,11 @@ Resources:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
 
-  CombinedInstance:
+  FrontendInstance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: "t2.micro"
-      ImageId: "ami-06f8dce63a6b60467"
+      InstanceType: "t3.medium"
+      ImageId: "ami-06f8dce63a6b60467" # Update with appropriate AMI ID
       KeyName: "vockey"
       NetworkInterfaces:
         - AssociatePublicIpAddress: 'true'
@@ -129,6 +129,27 @@ Resources:
           GroupSet:
             - !Ref PublicSecurityGroup
           SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: "Frontend"
+
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: "t3.medium"
+      ImageId: "ami-06f8dce63a6b60467" # Update with appropriate AMI ID
+      KeyName: "vockey"
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: 'true'
+          DeleteOnTermination: 'true'
+          DeviceIndex: '0'
+          GroupSet:
+            - !Ref PublicSecurityGroup
+          SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: "Backend"
+
 
   PublicSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -175,17 +196,7 @@ Resources:
       Runtime: nodejs20.x
       Timeout: 800  # Replace with your desired timeout
 
-  # Define the CloudWatch Events rule
-  ScheduleRule:
-    Type: AWS::Events::Rule
-    Properties:
-      ScheduleExpression: "cron(58 23 * * ? *)"  # Runs daily at 11:58 PM
-      Description: "Schedule for triggering the Lambda function daily at 11:58 PM"
-      State: "ENABLED"
-      Targets:
-        - Arn: !GetAtt MyLambdaFunction.Arn
-          Id: "Target1"
-      RoleArn: "arn:aws:iam::975050375077:role/LabRole"  # Use the LabRole for CloudWatch Events
+
   
   # Add SNS topic for CPU utilization alarm
   CpuUtilizationAlarmTopic:
@@ -210,7 +221,25 @@ Resources:
       MetricName: "CPUUtilization"
       Dimensions:
         - Name: "InstanceId"
-          Value: !Ref CombinedInstance
+          Value: !Ref FrontendInstance
+      Statistic: "Average"
+      Period: "60"  # 1 minute
+      EvaluationPeriods: "1"
+      Threshold: "70"  # 70% utilization
+      ComparisonOperator: "GreaterThanThreshold"
+      AlarmActions:
+        - !Ref CpuUtilizationAlarmTopic
+
+  # Create CloudWatch alarm for CPU utilization
+  CPUUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm when CPU utilization exceeds 70%"
+      Namespace: "AWS/EC2"
+      MetricName: "CPUUtilization"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref BackendInstance
       Statistic: "Average"
       Period: "60"  # 1 minute
       EvaluationPeriods: "1"

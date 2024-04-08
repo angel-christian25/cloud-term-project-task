@@ -99,7 +99,7 @@ const SigninPage = () => {
                     variant="contained"
                     color="primary"
                     fullWidth
-                    onClick={() => history.push('/sigin')} 
+                    onClick={() => history.push('/signup')} 
                   >
                     Sign UP
                   </Button>

@@ -243,30 +243,30 @@ createPool()
     console.error('Error creating pool:', error);
   });
 
-  cron.schedule('*/5 * * * *', async () => {
-    try {
-      // Make an API call to get all todos from your backend with user details
-      const query = `
-        SELECT t.*, u.email AS user_email
-        FROM todos t
-        INNER JOIN users u ON t.created_by = u.id
-      `;
-      const { rows: todos } = await pool.query(query);
+  // cron.schedule('*/5 * * * *', async () => {
+  //   try {
+  //     // Make an API call to get all todos from your backend with user details
+  //     const query = `
+  //       SELECT t.*, u.email AS user_email
+  //       FROM todos t
+  //       INNER JOIN users u ON t.created_by = u.id
+  //     `;
+  //     const { rows: todos } = await pool.query(query);
   
-      // Parameters for the Lambda function
-      const params = {
-        FunctionName: 'emailLambda', // Replace with your Lambda function name
-        InvocationType: 'RequestResponse', // Synchronous invocation
-        Payload: JSON.stringify({ todos }) // Pass todos data to the Lambda function
-      };
+  //     // Parameters for the Lambda function
+  //     const params = {
+  //       FunctionName: 'emailLambda', // Replace with your Lambda function name
+  //       InvocationType: 'RequestResponse', // Synchronous invocation
+  //       Payload: JSON.stringify({ todos }) // Pass todos data to the Lambda function
+  //     };
   
-      // Call the Lambda function
-      const data = await lambda.invoke(params).promise();
+  //     // Call the Lambda function
+  //     const data = await lambda.invoke(params).promise();
   
-      // Log the response from the Lambda function
-      console.log('Response from Lambda:', data.Payload);
-    } catch (error) {
-      console.error('Error calling AWS Lambda:', error);
-    }
-  });
+  //     // Log the response from the Lambda function
+  //     console.log('Response from Lambda:', data.Payload);
+  //   } catch (error) {
+  //     console.error('Error calling AWS Lambda:', error);
+  //   }
+  // });
 

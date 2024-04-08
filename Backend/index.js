@@ -7,7 +7,8 @@ const { Pool } = require('pg');
 const AWS = require('aws-sdk');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+
 const cron = require('node-cron');
 require('dotenv').config();
 
@@ -150,7 +151,7 @@ app.post('/api/signin', async (req, res) => {
     }
 
     // Compare the provided password with the stored hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.rows[0].password);
+    const isPasswordValid = await bcrypt.compare(password, hashedPassword);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }

@@ -23,6 +23,8 @@ import {
 } from '@material-ui/core';
 import { AddCircle, CheckCircle, Close, Delete as DeleteIcon } from '@material-ui/icons';
 import TaskCalendar from './TaskCalendar';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const TaskTracker = () => {
   const history = useHistory();
@@ -55,7 +57,7 @@ const TaskTracker = () => {
       const decodedToken = jwt.decode(token);
       const userId = decodedToken.userId;
       setCurrentUserId(userId)
-      const response = await fetch(`http://localhost:3001/api/todos?userId=${userId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/todos?userId=${userId}`);
       const data = await response.json();
       setTasks(data);
     } catch (error) {
@@ -75,7 +77,7 @@ const TaskTracker = () => {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await fetch(`http://localhost:3001/api/todos/${taskId}`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/todos/${taskId}`, {
         method: 'DELETE',
       });
 
@@ -94,7 +96,7 @@ const TaskTracker = () => {
       const isTaskOpen = !taskToUpdate.is_open;
       const closedAt = isTaskOpen ? null : new Date().toISOString();
 
-      const response = await fetch(`http://localhost:3001/api/todos/${taskId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/todos/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +152,7 @@ const TaskTracker = () => {
 
   const handleSaveEditedTask = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/todos/${taskDetails.id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/todos/${taskDetails.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +177,7 @@ const TaskTracker = () => {
       const decodedToken = jwt.decode(token);
       const userId = decodedToken.userId;
       const newTaskDetails = { ...taskDetails, is_open: true, created_by: userId };
-      const response = await fetch('http://localhost:3001/api/todos', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/todos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

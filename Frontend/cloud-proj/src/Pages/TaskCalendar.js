@@ -4,6 +4,8 @@ import moment from 'moment';
 import jwt from 'jsonwebtoken';
 import { Badge, Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import './TaskCalendar.css'; 
+import dotenv from 'dotenv';
+dotenv.config();
 
 const TaskCalendar = () => {
   const [tasksData, setTasksData] = useState({});
@@ -19,7 +21,7 @@ const TaskCalendar = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/todos?userId=${userId}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/todos?userId=${userId}`);
         const tasks = await response.json();
         const tasksByDate = {};
 

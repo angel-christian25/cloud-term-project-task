@@ -11,7 +11,8 @@ import {
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from 'react-router-dom';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const SigninPage = () => {
   const history = useHistory();
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const SigninPage = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/signin', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

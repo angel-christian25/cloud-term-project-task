@@ -259,7 +259,7 @@ createPool()
         InvocationType: 'RequestResponse', // Synchronous invocation
         Payload: JSON.stringify({ todos }) // Pass todos data to the Lambda function
       };
-  
+      console.log("todos JSON.stringify({ todos }))",JSON.stringify({ todos }));
       // Call the Lambda function
       const data = await lambda.invoke(params).promise();
   

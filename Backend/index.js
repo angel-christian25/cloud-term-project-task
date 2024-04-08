@@ -63,17 +63,17 @@ const createTablesIfNotExist = async (pool) => {
 
     // Check if the 'todos' table exists, create if not
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS todos (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        deadline TIMESTAMP,
-        is_open BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_by INT,
-        FOREIGN KEY (created_by) REFERENCES users(id)
-      )
-    `);
+    CREATE TABLE IF NOT EXISTS todos (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      is_open BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      deadline TIMESTAMP,
+      closed_at TIMESTAMP,
+      created_by INTEGER -- New field to store the user id
+    )
+  `);
   } catch (error) {
     console.error('Error creating tables:', error);
     throw error;

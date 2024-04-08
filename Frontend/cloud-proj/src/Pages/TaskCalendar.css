@@ -4,8 +4,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-    z-index: 9998; /* Ensure the backdrop appears behind the modal */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998; 
   }
   
   .modal {
@@ -18,7 +18,7 @@
     border-radius: 5px;
     width: 80%;
     max-width: 600px;
-    z-index: 9999; /* Ensure the modal appears above the backdrop */
+    z-index: 9999; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   }
   
@@ -35,7 +35,7 @@
 
 
   .react-calendar__tile {
-    height: 80px; /* Adjust the height as needed */
+    height: 80px; 
     display: flex;
     justify-content: center;
     align-items: center;

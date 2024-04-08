@@ -181,7 +181,10 @@ Resources:
     Properties:
       Name: "connectionStringForPG2"
       Description: "Connection string for PostgreSQL"
-      SecretString: '{"connectionStringForPG2": "rds-endpoint"}'
+      SecretString: !Sub |
+        {
+          "connectionStringForPG2": "postgresql://postgres:postgres@${MyRDSInstance.Endpoint.Address}:5432/todos"
+        }
  
   nodemailerPass2:
     Type: AWS::SecretsManager::Secret
@@ -205,52 +208,52 @@ Resources:
  
  
   
-  # # Add SNS topic for CPU utilization alarm
-  # CpuUtilizationAlarmTopic:
-  #   Type: AWS::SNS::Topic
-  #   Properties:
-  #     DisplayName: "CPUUtilizationAlarmTopic"
+  # Add SNS topic for CPU utilization alarm
+  CpuUtilizationAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: "CPUUtilizationAlarmTopic"
  
-  # # Add subscription to the SNS topic (replace email@example.com with your email)
-  # CpuUtilizationAlarmTopicSubscription:
-  #   Type: AWS::SNS::Subscription
-  #   Properties:
-  #     Endpoint: "angelchristian2599@gmail.com"
-  #     Protocol: "email"
-  #     TopicArn: !Ref CpuUtilizationAlarmTopic
+  # Add subscription to the SNS topic 
+  CpuUtilizationAlarmTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: "angelchristian2599@gmail.com"
+      Protocol: "email"
+      TopicArn: !Ref CpuUtilizationAlarmTopic
  
-  # # Create CloudWatch alarm for CPU utilization
-  # CPUUtilizationAlarm:
-  #   Type: AWS::CloudWatch::Alarm
-  #   Properties:
-  #     AlarmDescription: "Alarm when CPU utilization exceeds 70%"
-  #     Namespace: "AWS/EC2"
-  #     MetricName: "CPUUtilization"
-  #     Dimensions:
-  #       - Name: "InstanceId"
-  #         Value: !Ref FrontendInstance
-  #     Statistic: "Average"
-  #     Period: "60"  # 1 minute
-  #     EvaluationPeriods: "1"
-  #     Threshold: "50"  # 50% utilization
-  #     ComparisonOperator: "GreaterThanThreshold"
-  #     AlarmActions:
-  #       - !Ref CpuUtilizationAlarmTopic
+  # Create CloudWatch alarm for CPU utilization
+  CPUUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm when CPU utilization exceeds 50%"
+      Namespace: "AWS/EC2"
+      MetricName: "CPUUtilization"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref FrontendInstance
+      Statistic: "Average"
+      Period: "60"  # 1 minute
+      EvaluationPeriods: "1"
+      Threshold: "50"  # 50% utilization
+      ComparisonOperator: "GreaterThanThreshold"
+      AlarmActions:
+        - !Ref CpuUtilizationAlarmTopic
  
-  # # Create CloudWatch alarm for CPU utilization
-  # CPUUtilizationAlarm:
-  #   Type: AWS::CloudWatch::Alarm
-  #   Properties:
-  #     AlarmDescription: "Alarm when CPU utilization exceeds 70%"
-  #     Namespace: "AWS/EC2"
-  #     MetricName: "CPUUtilization"
-  #     Dimensions:
-  #       - Name: "InstanceId"
-  #         Value: !Ref BackendInstance
-  #     Statistic: "Average"
-  #     Period: "60"  # 1 minute
-  #     EvaluationPeriods: "1"
-  #     Threshold: "50"  # 50% utilization
-  #     ComparisonOperator: "GreaterThanThreshold"
-  #     AlarmActions:
-  #       - !Ref CpuUtilizationAlarmTopic
+  # Create CloudWatch alarm for CPU utilization
+  CPUUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm when CPU utilization exceeds 50%"
+      Namespace: "AWS/EC2"
+      MetricName: "CPUUtilization"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref BackendInstance
+      Statistic: "Average"
+      Period: "60"  # 1 minute
+      EvaluationPeriods: "1"
+      Threshold: "50"  # 50% utilization
+      ComparisonOperator: "GreaterThanThreshold"
+      AlarmActions:
+        - !Ref CpuUtilizationAlarmTopic

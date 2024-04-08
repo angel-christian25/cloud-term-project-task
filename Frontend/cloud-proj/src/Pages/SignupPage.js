@@ -132,7 +132,7 @@ const SignupPage = () => {
                     variant="contained"
                     color="primary"
                     fullWidth
-                    onClick={() => history.push('/signup')} 
+                    onClick={() => history.push('/login')} 
                   >
                     Sign In
                   </Button>

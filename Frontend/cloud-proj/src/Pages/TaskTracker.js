@@ -38,7 +38,7 @@ const TaskTracker = () => {
     description: '',
     deadline: '',
   });
-  const [calendarView, setCalendarView] = useState(false); // State to toggle between calendar and normal view
+  const [calendarView, setCalendarView] = useState(false); 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -137,7 +137,7 @@ const TaskTracker = () => {
     const taskToEdit = tasks.find((task) => task.id === taskId);
     setTaskDetails({
       ...taskToEdit,
-      deadline: taskToEdit.deadline ? taskToEdit.deadline.slice(0, -1) : '', // Adjust the deadline property
+      deadline: taskToEdit.deadline ? taskToEdit.deadline.slice(0, -1) : '',
     });
     handleOpenEditModal();
   };
@@ -201,7 +201,6 @@ const TaskTracker = () => {
         <Toolbar>
           <Typography variant="h6">Task Tracker</Typography>
           <Box flexGrow={1} />
-          {/* Toggle button for switching between calendar and normal view */}
           <Button color="inherit" onClick={() => setCalendarView(!calendarView)}>
             {calendarView ? 'Normal View' : 'Calendar View'}
           </Button>
@@ -236,7 +235,7 @@ const TaskTracker = () => {
                           <ListItemText
                             primary={task.title}
                             secondary={`Deadline: ${task.deadline}`}
-                            onClick={() => handleEditTask(task.id)} // Edit task when clicked
+                            onClick={() => handleEditTask(task.id)} 
                           />
                           <ListItemSecondaryAction>
                             <IconButton
@@ -264,7 +263,7 @@ const TaskTracker = () => {
                           <ListItemText
                             primary={task.title}
                             secondary={`Deadline: ${task.deadline}`}
-                            onClick={() => handleEditTask(task.id)} // Edit task when clicked
+                            onClick={() => handleEditTask(task.id)}
                           />
                           <ListItemSecondaryAction>
                             <IconButton

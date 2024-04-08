@@ -1,17 +1,17 @@
 Description: CloudFormation for Task Tracker
-
+ 
 Parameters:
   VpcCidrBlock:
     Description: CIDR block for the VPC
     Type: String
     Default: "10.0.0.0/16"
-
+ 
 Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VpcCidrBlock
-
+ 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -22,7 +22,7 @@ Resources:
       Tags:
         - Key: Name
           Value: "public1"
-
+ 
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -33,7 +33,7 @@ Resources:
       Tags:
         - Key: Name
           Value: "public2"
-
+ 
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -43,7 +43,7 @@ Resources:
       Tags:
         - Key: Name
           Value: "private1"
-
+ 
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -53,21 +53,21 @@ Resources:
       Tags:
         - Key: Name
           Value: "private2"
-
+ 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
-
+ 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
-
+ 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
-
+ 
   PublicRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
@@ -82,6 +82,12 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet1  # Replace with the appropriate subnet ID
 
+  DevRouteAssos2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2  # Replace with the appropriate subnet ID
+ 
   MyRDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -96,7 +102,7 @@ Resources:
       DBSubnetGroupName: !Ref DBSubnetGroup
       VPCSecurityGroups:
         - !Ref PrivateSecurityGroup  # Reference the security group for RDS
-
+ 
   PrivateSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -107,7 +113,7 @@ Resources:
           FromPort: 5432
           ToPort: 5432
           SourceSecurityGroupId: !Ref PublicSecurityGroup  # Allow traffic from EC2 instance
-
+ 
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -115,7 +121,7 @@ Resources:
       SubnetIds:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
-
+ 
   FrontendInstance:
     Type: AWS::EC2::Instance
     Properties:
@@ -132,7 +138,7 @@ Resources:
       Tags:
         - Key: Name
           Value: "Frontend"
-
+ 
   BackendInstance:
     Type: AWS::EC2::Instance
     Properties:
@@ -149,8 +155,8 @@ Resources:
       Tags:
         - Key: Name
           Value: "Backend"
-
-
+ 
+ 
   PublicSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -169,14 +175,14 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: "0.0.0.0/0"
-
+ 
   connectionStringForPG2:
     Type: AWS::SecretsManager::Secret
     Properties:
       Name: "connectionStringForPG2"
       Description: "Connection string for PostgreSQL"
       SecretString: '{"connectionStringForPG2": "rds-endpoint"}'
-
+ 
   nodemailerPass2:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -196,55 +202,55 @@ Resources:
         S3Key: Archive.zip  # Replace with the S3 key for your Lambda function code
       Runtime: nodejs20.x
       Timeout: 800  # Replace with your desired timeout
-
-
+ 
+ 
   
-  # Add SNS topic for CPU utilization alarm
-  CpuUtilizationAlarmTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      DisplayName: "CPUUtilizationAlarmTopic"
-
-  # Add subscription to the SNS topic (replace email@example.com with your email)
-  CpuUtilizationAlarmTopicSubscription:
-    Type: AWS::SNS::Subscription
-    Properties:
-      Endpoint: "angelchristian2599@gmail.com"
-      Protocol: "email"
-      TopicArn: !Ref CpuUtilizationAlarmTopic
-
-  # Create CloudWatch alarm for CPU utilization
-  CPUUtilizationAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: "Alarm when CPU utilization exceeds 70%"
-      Namespace: "AWS/EC2"
-      MetricName: "CPUUtilization"
-      Dimensions:
-        - Name: "InstanceId"
-          Value: !Ref FrontendInstance
-      Statistic: "Average"
-      Period: "60"  # 1 minute
-      EvaluationPeriods: "1"
-      Threshold: "70"  # 70% utilization
-      ComparisonOperator: "GreaterThanThreshold"
-      AlarmActions:
-        - !Ref CpuUtilizationAlarmTopic
-
-  # Create CloudWatch alarm for CPU utilization
-  CPUUtilizationAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: "Alarm when CPU utilization exceeds 70%"
-      Namespace: "AWS/EC2"
-      MetricName: "CPUUtilization"
-      Dimensions:
-        - Name: "InstanceId"
-          Value: !Ref BackendInstance
-      Statistic: "Average"
-      Period: "60"  # 1 minute
-      EvaluationPeriods: "1"
-      Threshold: "70"  # 70% utilization
-      ComparisonOperator: "GreaterThanThreshold"
-      AlarmActions:
-        - !Ref CpuUtilizationAlarmTopic
+  # # Add SNS topic for CPU utilization alarm
+  # CpuUtilizationAlarmTopic:
+  #   Type: AWS::SNS::Topic
+  #   Properties:
+  #     DisplayName: "CPUUtilizationAlarmTopic"
+ 
+  # # Add subscription to the SNS topic (replace email@example.com with your email)
+  # CpuUtilizationAlarmTopicSubscription:
+  #   Type: AWS::SNS::Subscription
+  #   Properties:
+  #     Endpoint: "angelchristian2599@gmail.com"
+  #     Protocol: "email"
+  #     TopicArn: !Ref CpuUtilizationAlarmTopic
+ 
+  # # Create CloudWatch alarm for CPU utilization
+  # CPUUtilizationAlarm:
+  #   Type: AWS::CloudWatch::Alarm
+  #   Properties:
+  #     AlarmDescription: "Alarm when CPU utilization exceeds 70%"
+  #     Namespace: "AWS/EC2"
+  #     MetricName: "CPUUtilization"
+  #     Dimensions:
+  #       - Name: "InstanceId"
+  #         Value: !Ref FrontendInstance
+  #     Statistic: "Average"
+  #     Period: "60"  # 1 minute
+  #     EvaluationPeriods: "1"
+  #     Threshold: "50"  # 50% utilization
+  #     ComparisonOperator: "GreaterThanThreshold"
+  #     AlarmActions:
+  #       - !Ref CpuUtilizationAlarmTopic
+ 
+  # # Create CloudWatch alarm for CPU utilization
+  # CPUUtilizationAlarm:
+  #   Type: AWS::CloudWatch::Alarm
+  #   Properties:
+  #     AlarmDescription: "Alarm when CPU utilization exceeds 70%"
+  #     Namespace: "AWS/EC2"
+  #     MetricName: "CPUUtilization"
+  #     Dimensions:
+  #       - Name: "InstanceId"
+  #         Value: !Ref BackendInstance
+  #     Statistic: "Average"
+  #     Period: "60"  # 1 minute
+  #     EvaluationPeriods: "1"
+  #     Threshold: "50"  # 50% utilization
+  #     ComparisonOperator: "GreaterThanThreshold"
+  #     AlarmActions:
+  #       - !Ref CpuUtilizationAlarmTopic

@@ -128,12 +128,13 @@ const SignupPage = () => {
               </Grid>
             </form>
             <Button
+            style={{marginTop:'20px'}}
                     variant="contained"
                     color="primary"
                     fullWidth
                     onClick={() => history.push('/signup')} 
                   >
-                    Signup
+                    Sign In
                   </Button>
           </Paper>
         </Box>

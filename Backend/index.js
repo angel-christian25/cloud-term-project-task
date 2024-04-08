@@ -131,9 +131,6 @@ app.post('/api/signup', async (req, res) => {
     const token = jwt.sign({ userId: newUser.rows[0].id, userEmail: newUser.rows[0].email }, 'your_secret_key', {
       expiresIn: '24h', // You can adjust the expiration time
     });
-    console.log(newUser.rows[0].id);
-console.log(newUser.rows[0].email);
-console.log(token);
 
     res.json({ userId: newUser.rows[0].id, email: newUser.rows[0].email, token });
   } catch (error) {
@@ -154,7 +151,7 @@ app.post('/api/signin', async (req, res) => {
     }
 
     // Compare the provided password with the stored hashed password
-    const isPasswordValid = await bcrypt.compare(password, hashedPassword);
+    const isPasswordValid = await bcrypt.compare(password, user.rows[0].password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }

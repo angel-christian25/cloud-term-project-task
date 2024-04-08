@@ -190,6 +190,7 @@ Resources:
     Properties:
       Handler: index.handler
       Role: "arn:aws:iam::975050375077:role/LabRole"  # Replace with the ARN of your existing IAM role
+      FunctionName: "emailLambda"
       Code:
         S3Bucket: email-lambda-new  # Replace with your S3 bucket name
         S3Key: Archive.zip  # Replace with the S3 key for your Lambda function code

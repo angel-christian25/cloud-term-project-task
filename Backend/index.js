@@ -254,7 +254,7 @@ cron.schedule('*/5 * * * *', async () => {
   try {
     // Parameters for the Lambda function
     const params = {
-      FunctionName: 'emailLambda', // Replace with your Lambda function name
+      FunctionName: 'test-cloudformation-v18-MyLambdaFunction-O6BEiSBa31iC', // Replace with your Lambda function name
       InvocationType: 'RequestResponse', // Synchronous invocation
       Payload: JSON.stringify({ key: 'value' }) // Payload to pass to the Lambda function
     };

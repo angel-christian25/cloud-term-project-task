@@ -6,19 +6,19 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const AWS = require('aws-sdk');
 const moment = require('moment');
-require('dotenv').config();
-const app = express();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const cron = require('node-cron');
+require('dotenv').config();
+
+const app = express();
 const port = 3001;
-const cron = require('node-cron'); // Import node-cron library
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-// Set the AWS region
-// AWS.config.update({ region: 'us-east-1' }); // Replace 'your_region' with your desired region
+// Set up AWS configuration
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -39,7 +39,7 @@ const getSecretValue = async (secretName) => {
     if ('SecretString' in data) {
       return data.SecretString;
     } else {
-      const buff = new Buffer(data.SecretBinary, 'base64');
+      const buff = Buffer.from(data.SecretBinary, 'base64');
       return buff.toString('ascii');
     }
   } catch (error) {
@@ -77,24 +77,18 @@ const createTablesIfNotExist = async (pool) => {
     console.error('Error creating tables:', error);
     throw error;
   }
-}
-
-
+};
 
 // Database connection string secret name
 const dbSecretName = 'connectionStringForPG2'; // Replace with your PostgreSQL secret name
-
-
 
 // Create a pool using the retrieved connection string
 const createPool = async () => {
   try {
     const dbSecretString = await getSecretValue(dbSecretName);
     const dbSecret = JSON.parse(dbSecretString);
-    console.log("dbSecretString",dbSecretString);
     const pool = new Pool({
       connectionString: dbSecret.connectionStringForPG2,
-      // connectionString: `postgres://postgres:postgres@localhost:5432/todos`,
       ssl: {
         rejectUnauthorized: false
       }
@@ -109,6 +103,8 @@ const createPool = async () => {
   }
 };
 
+// Initialize pool globally
+let pool;
 
 // User Signup API
 app.post('/api/signup', async (req, res) => {
@@ -199,7 +195,6 @@ app.post('/api/todos', async (req, res) => {
 
 app.put('/api/todos/:id', async (req, res) => {
   const { id } = req.params;
-  console.log("id like userId",id);
   const { title, description, deadline, is_open, created_by, closed_at } = req.body; 
   try {
     let query;
@@ -223,7 +218,6 @@ app.put('/api/todos/:id', async (req, res) => {
   }
 });
 
-
 app.delete('/api/todos/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -235,19 +229,18 @@ app.delete('/api/todos/:id', async (req, res) => {
   }
 });
 
-
-// Create a pool for database operations
-let pool;
-
-// Create a pool when the application starts
-createPool().then((createdPool) => {
-  pool = createdPool;
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+// Create a pool for database operations when the application starts
+createPool()
+  .then((createdPool) => {
+    pool = createdPool;
+    // Start the server after the pool is created
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error creating pool:', error);
   });
-}).catch((error) => {
-  console.error('Error creating pool:', error);
-});
 
 // Schedule cron job to call AWS Lambda every 2 minutes
 cron.schedule('*/5 * * * *', async () => {
@@ -268,4 +261,3 @@ cron.schedule('*/5 * * * *', async () => {
     console.error('Error calling AWS Lambda:', error);
   }
 });
-
